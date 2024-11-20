@@ -79,18 +79,28 @@ try {
     $RemoteUser = "Benjak617"
     $RemoteServer = "174.51.68.96"
     $RemotePath = "/"
-    $Password = "Snowman1234!"
-    $SCPCommand = "scp.exe"
-    $scpArgs = @("$OutputFile", "$RemoteUser@${RemoteServer}:$RemotePath")
 
     Write-Log "Initiating SCP transfer."
+    # Store the password in a secure string
+    $Password = "Snowman1234!" | ConvertTo-SecureString -AsPlainText -Force
 
-    Start-Process -FilePath $SCPCommand -ArgumentList $scpArgs -Wait -ErrorAction Stop
-    Write-Log "SCP transfer completed successfully."
+    # Use ssh-keygen to automatically accept the host key
+    Start-Process "ssh-keygen" -ArgumentList "-R $RemoteServer" -NoNewWindow -Wait
 
-    # Clean up
-    Remove-Item -Path $OutputFile
-    Write-Log "Temporary files cleaned up."
+    # Execute scp with password via STDIN
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = "scp.exe"
+    $psi.Arguments = """$OutputFile"" ""$RemoteUser@${RemoteServer}:$RemotePath"""
+    $psi.RedirectStandardInput = $true
+    $psi.UseShellExecute = $false
+
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $psi
+    $process.Start()
+    $process.StandardInput.WriteLine($Password)
+    $process.WaitForExit()
+
+    Write-Log "SCP transfer completed with exit code: $($process.ExitCode)"
 
 } catch {
     Write-Log "Script failed: $($_.Exception.Message)"
